@@ -54,6 +54,17 @@ src/
 3. **Development**: `npm run dev`
 4. **Build**: `npm run build`
 
+## 🧩 Backend API
+
+This repo now includes a small Express backend in [backend/src/server.ts](backend/src/server.ts) backed by Firebase Admin.
+
+Run it with `npm run dev:backend` after setting one of these credentials:
+
+1. `FIREBASE_SERVICE_ACCOUNT_JSON` with a full service account JSON blob.
+2. Google Application Default Credentials via `GOOGLE_APPLICATION_CREDENTIALS` or an equivalent local auth setup.
+
+The backend exposes `/api/users`, `/api/projects`, `/api/projects/:id/tasks`, and related CRUD endpoints.
+
 ## 📋 Security Architecture
 
 Nexus Core implements strict data validation patterns and server-side rules (Firestore Security Rules) to ensure that identity claims (UIDs) and system roles cannot be spoofed by client-side modifications.
