@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "users": {
+      "title": "User Profile",
+      "description": "User account details and roles",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "member"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["uid", "email", "displayName", "role", "createdAt"]
+    },
+    "projects": {
+      "title": "Project",
+      "description": "Project container for tasks",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "memberIds": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "name", "ownerId", "memberIds", "createdAt"]
+    },
+    "tasks": {
+      "title": "Task",
+      "description": "Indivdual task within a project",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "projectId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "assigneeId": { "type": "string" },
+        "status": { "type": "string", "enum": ["todo", "in-progress", "completed", "overdue"] },
+        "priority": { "type": "string", "enum": ["low", "medium", "high"] },
+        "dueDate": { "type": "number" },
+        "creatorId": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["id", "projectId", "title", "status", "priority", "dueDate", "creatorId", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "users",
+      "description": "User profiles"
+    },
+    "/projects/{projectId}": {
+      "schema": "projects",
+      "description": "Projects list"
+    },
+    "/tasks/{taskId}": {
+      "schema": "tasks",
+      "description": "Individual tasks across all projects"
+    }
+  }
+}

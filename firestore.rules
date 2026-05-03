@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 0.1 Global Helpers
+    function isSignedIn() { return request.auth != null; }
+    function isEmailVerified() { return request.auth.token.email_verified == true; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // Pillar 2: Validation Helpers
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'displayName', 'role', 'createdAt']) &&
+             data.keys().size() == 5 &&
+             data.uid == request.auth.uid &&
+             data.email is string && data.email.size() <= 256 &&
+             data.displayName is string && data.displayName.size() <= 100 &&
+             data.role in ['admin', 'member'] &&
+             data.createdAt is number;
+    }
+
+    function isValidProject(data) {
+      return data.keys().hasAll(['id', 'name', 'description', 'ownerId', 'memberIds', 'createdAt']) &&
+             data.keys().size() >= 5 &&
+             data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.ownerId == request.auth.uid &&
+             data.memberIds is list && data.memberIds.size() <= 50 &&
+             data.createdAt is number;
+    }
+
+    function isValidTask(data) {
+      return data.keys().hasAll(['id', 'projectId', 'title', 'description', 'assigneeId', 'status', 'priority', 'dueDate', 'creatorId', 'createdAt', 'updatedAt']) &&
+             data.keys().size() >= 10 &&
+             data.id is string && data.id.size() <= 128 &&
+             data.projectId is string &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 300 &&
+             data.status in ['todo', 'in-progress', 'completed', 'overdue'] &&
+             data.priority in ['low', 'medium', 'high'] &&
+             data.dueDate is number &&
+             data.creatorId == request.auth.uid &&
+             data.createdAt is number &&
+             data.updatedAt is number;
+    }
+
+    // 1. Users Collection
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn() && resource.data.uid == request.auth.uid; // Secure query enforcement
+      allow create: if isSignedIn() && isValidUser(incoming()) && userId == request.auth.uid;
+      allow update: if isSignedIn() && isValidUser(incoming()) && userId == request.auth.uid && (
+        // Only allow updating display name or photo
+        incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL'])
+      );
+    }
+
+    // 2. Projects Collection
+    match /projects/{projectId} {
+      function isMember() { return isSignedIn() && request.auth.uid in existing().memberIds; }
+      function isOwner() { return isSignedIn() && existing().ownerId == request.auth.uid; }
+
+      allow get: if isMember();
+      allow list: if isSignedIn() && request.auth.uid in resource.data.memberIds;
+      allow create: if isSignedIn() && isValidProject(incoming());
+      allow update: if isOwner() && isValidProject(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'description', 'memberIds'])
+      );
+      allow delete: if isOwner();
+    }
+
+    // 3. Tasks Collection
+    match /tasks/{taskId} {
+      function canReadTask() {
+        let project = get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data;
+        return isSignedIn() && request.auth.uid in project.memberIds;
+      }
+      function canWriteTask() {
+        let project = get(/databases/$(database)/documents/projects/$(incoming().projectId)).data;
+        return isSignedIn() && request.auth.uid in project.memberIds;
+      }
+
+      allow get: if canReadTask();
+      allow list: if isSignedIn() && exists(/databases/$(database)/documents/projects/$(resource.data.projectId)) && request.auth.uid in get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data.memberIds;
+      
+      allow create: if canWriteTask() && isValidTask(incoming());
+      allow update: if canWriteTask() && isValidTask(incoming()) && (
+        // Any member can move status, but only creator/admin can change title/description
+        (incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])) ||
+        (existing().creatorId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'description', 'assigneeId', 'dueDate', 'priority', 'status', 'updatedAt']))
+      );
+      allow delete: if isSignedIn() && existing().creatorId == request.auth.uid;
+    }
+  }
+}
