@@ -1,70 +1,360 @@
-# Nexus Core - High-Density Project Orchestrator
+# Nexus Core
 
-Nexus Core is a high-performance project management dashboard designed with a "High Density" aesthetic, emphasizing data clarity, technical precision, and rapid orchestration.
+> High-Density Project Orchestrator for technical teams, project managers, and enterprise operations.
 
-## 🚀 Key Features
+Nexus Core is a high-performance project management platform designed around a **High Density UI philosophy**, prioritizing information visibility, operational efficiency, and rapid task orchestration. It provides advanced project tracking, role-based access control, team management, and real-time analytics through a modern React and Firebase architecture.
 
-- **Advanced Role-Based Access Control (RBAC)**: 
-  - **Prime Admins**: Superpower access to initialize projects, onboard personnel, and deploy tasks.
-  - **Staff Members**: Focused access rights to view assignments and update progress without administrative overhead.
-- **Project Infrastructure**: Initialize and manage complex project regions with dedicated technical descriptions and deadlines.
-- **Task Orchestration**: Unit-level task management with priority levels (Low to Critical), explicit assignees, and real-time status tracking.
-- **Team Management**: Provision and manage personnel within the Nexus network.
-- **Analytical Dashboard**: Real-time stats on active tasks, completion rates, and team velocity.
+---
 
-## 🛠 Technical Stack
+## 🚀 Features
 
-- **Frontend**: React 18, Vite, TypeScript
-- **Styling**: Tailwind CSS
-- **Database/Auth**: Firebase (Firestore & Firebase Auth)
-- **Animations**: Framer Motion (via `motion/react`)
-- **Icons**: Lucide React
-- **UI Components**: Radix UI (Shadcn UI based)
+### Advanced Role-Based Access Control (RBAC)
 
-## 🔐 User Roles
+Nexus Core provides strict access controls to ensure users only interact with resources relevant to their responsibilities.
 
-### Prime Admin
-- Full CRUD access to Projects.
-- Full CRUD access to Tasks.
-- Ability to onboard and manage Team Members.
-- Access to the Global Dashboard with full stats.
-- **Demo Login**: `admin@nexus-core.io`
+#### Prime Admin
 
-### Staff Member
-- View-only access to Project portfolios.
-- View and update assigned tasks.
-- Personal task tracking display in the team view.
-- **Demo Login**: `staff@nexus-core.io`
+* Full CRUD access to Projects
+* Full CRUD access to Tasks
+* Manage Team Members
+* Access system-wide analytics
+* Configure project infrastructure
+* Assign and reassign work units
+
+**Demo Account**
+
+```text
+Email: admin@nexus-core.io
+```
+
+#### Staff Member
+
+* View assigned projects
+* View assigned tasks
+* Update task status and progress
+* Track personal workload and completion metrics
+
+**Demo Account**
+
+```text
+Email: staff@nexus-core.io
+```
+
+---
+
+## 📊 Core Modules
+
+### Project Infrastructure
+
+Create and manage project regions with:
+
+* Project title
+* Technical description
+* Deadlines
+* Status tracking
+* Team allocation
+
+### Task Orchestration
+
+Manage work units with:
+
+* Priority Levels
+
+  * Low
+  * Medium
+  * High
+  * Critical
+* Assignee management
+* Progress tracking
+* Status lifecycle monitoring
+
+### Team Management
+
+Provision and manage personnel across the Nexus network.
+
+Capabilities include:
+
+* User onboarding
+* Role assignment
+* Team visibility
+* Workload distribution
+
+### Analytics Dashboard
+
+Real-time insights including:
+
+* Active tasks
+* Completed tasks
+* Project progress
+* Team velocity
+* Completion rates
+
+---
+
+## 🛠 Technology Stack
+
+### Frontend
+
+* React 18
+* Vite
+* TypeScript
+
+### Styling
+
+* Tailwind CSS
+
+### UI Components
+
+* Radix UI
+* Shadcn UI
+
+### Animations
+
+* Framer Motion (`motion/react`)
+
+### Icons
+
+* Lucide React
+
+### Backend & Authentication
+
+* Firebase Authentication
+* Firestore Database
+* Firebase Admin SDK
+
+### API Server
+
+* Express.js
+* TypeScript
+
+---
 
 ## 📁 Project Structure
 
 ```text
 src/
-├── components/     # UI components and layout wrappers
+├── components/     # Reusable UI components
 ├── lib/            # Firebase configuration and utilities
-├── pages/          # Individual screen implementations
-├── types/          # TypeScript definitions
-└── App.tsx         # Routing and core logic
+├── pages/          # Application screens/pages
+├── types/          # TypeScript interfaces and types
+└── App.tsx         # Routing and application bootstrap
+
+backend/
+└── src/
+    └── server.ts   # Express API server
 ```
 
-## ⚙️ Setup & Deployment
+---
 
-1. **Environment Variables**: Configure your Firebase credentials in `.env` (refer to `.env.example`).
-2. **Installation**: `npm install`
-3. **Development**: `npm run dev`
-4. **Build**: `npm run build`
+## ⚙️ Getting Started
+
+### Prerequisites
+
+* Node.js 18+
+* npm or yarn
+* Firebase Project
+
+---
+
+### 1. Clone Repository
+
+```bash
+git clone <repository-url>
+cd nexus-core
+```
+
+---
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+---
+
+### 3. Configure Environment Variables
+
+Create a `.env` file using the provided example:
+
+```bash
+cp .env.example .env
+```
+
+Add your Firebase configuration values.
+
+Example:
+
+```env
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+```
+
+---
+
+### 4. Start Development Server
+
+```bash
+npm run dev
+```
+
+Application will be available at:
+
+```text
+http://localhost:5173
+```
+
+---
+
+### 5. Build for Production
+
+```bash
+npm run build
+```
+
+---
 
 ## 🧩 Backend API
 
-This repo now includes a small Express backend in [backend/src/server.ts](backend/src/server.ts) backed by Firebase Admin.
+Nexus Core includes an Express backend powered by Firebase Admin SDK.
 
-Run it with `npm run dev:backend` after setting one of these credentials:
+### Start Backend
 
-1. `FIREBASE_SERVICE_ACCOUNT_JSON` with a full service account JSON blob.
-2. Google Application Default Credentials via `GOOGLE_APPLICATION_CREDENTIALS` or an equivalent local auth setup.
+```bash
+npm run dev:backend
+```
 
-The backend exposes `/api/users`, `/api/projects`, `/api/projects/:id/tasks`, and related CRUD endpoints.
+---
 
-## 📋 Security Architecture
+### Authentication Setup
 
-Nexus Core implements strict data validation patterns and server-side rules (Firestore Security Rules) to ensure that identity claims (UIDs) and system roles cannot be spoofed by client-side modifications.
+Provide one of the following credential options:
+
+#### Option 1: Service Account JSON
+
+```env
+FIREBASE_SERVICE_ACCOUNT_JSON={...}
+```
+
+#### Option 2: Application Default Credentials
+
+```env
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+```
+
+---
+
+## 📡 API Endpoints
+
+### Users
+
+```http
+GET    /api/users
+POST   /api/users
+GET    /api/users/:id
+PUT    /api/users/:id
+DELETE /api/users/:id
+```
+
+### Projects
+
+```http
+GET    /api/projects
+POST   /api/projects
+GET    /api/projects/:id
+PUT    /api/projects/:id
+DELETE /api/projects/:id
+```
+
+### Tasks
+
+```http
+GET    /api/projects/:id/tasks
+POST   /api/projects/:id/tasks
+PUT    /api/tasks/:id
+DELETE /api/tasks/:id
+```
+
+---
+
+## 🔐 Security Architecture
+
+Security is enforced through:
+
+### Firestore Security Rules
+
+* Role-based authorization
+* Ownership validation
+* Resource-level access restrictions
+
+### Server-Side Validation
+
+* Input sanitization
+* Role verification
+* UID validation
+* Request integrity checks
+
+### Authentication
+
+* Firebase Authentication
+* Verified identity claims
+* Protected API endpoints
+
+Nexus Core is designed to prevent privilege escalation and ensure that user roles cannot be spoofed through client-side manipulation.
+
+---
+
+## 📈 Design Philosophy
+
+Nexus Core follows a **High Density Interface Model**:
+
+* Maximum information visibility
+* Reduced navigation overhead
+* Fast operational workflows
+* Technical precision
+* Enterprise-grade usability
+
+The platform is optimized for teams that manage multiple projects, complex task structures, and high-volume operational workloads.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+
+```bash
+git checkout -b feature/new-feature
+```
+
+3. Commit changes
+
+```bash
+git commit -m "Add new feature"
+```
+
+4. Push branch
+
+```bash
+git push origin feature/new-feature
+```
+
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 👨‍💻 Author
+
+**High-Density Project Orchestration Platform**
+
+Built with React, TypeScript, Firebase, Express, and Tailwind CSS to streamline project execution and team coordination at scale.
